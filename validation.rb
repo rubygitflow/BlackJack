@@ -49,5 +49,10 @@ module Validation
         raise 'Wrong class of attribute!'
       end
     end
+
+    def validate_unique(options)
+      raise 'Attribute already exists!' if options[:args].first
+                                          .include?(options[:attr])
+    end
   end
 end
