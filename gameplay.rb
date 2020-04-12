@@ -7,23 +7,23 @@ require_relative 'dealer'
 require_relative 'table'
 
 class Gameplay
-  include TextInterface
 
   attr_reader :user, :dealer, :table, :deck, :stop_error, :round, :user_move
-  attr_reader :stop_game, :next_round
+  attr_reader :stop_game, :next_round, :text_interface
 
   def initialize
+    @text_interface = TextInterface.new
     @dealer = Dealer.new('Dealer', 100)
     @table = Table.new('Table', 0)
     begin
       attempt ||= 0
       @stop_error = false
-      username = new_username
+      username = @text_interface.new_username
       @user = User.new(username, 100)
     rescue RuntimeError => e
       if (attempt += 1) < 3
         puts e
-        username_rule
+        @text_interface.username_rule
         retry
       else
         @stop_error = true
@@ -37,7 +37,7 @@ class Gameplay
   end
 
   def run_game
-    welcome(@user.name)
+    @text_interface.welcome(@user.name)
     @round = 0
     continue = @deck.enough?(6)
     while continue
@@ -49,10 +49,9 @@ class Gameplay
       break if @stop_game
 
       finish_round
-      continue = @deck.enough?(6)
-      deck_is_over unless continue
+      @text_interface.deck_is_over unless @deck.enough?(6)
     end
-    game_is_over
+    @text_interface.game_is_over
   end
 
   private
@@ -78,14 +77,14 @@ class Gameplay
   end
 
   def hand_out_first
-    @deck.take_card(user)
-    @deck.take_card(dealer)
-    @deck.take_card(user)
-    @deck.take_card(dealer)
+    @deck.put_card(user)
+    @deck.put_card(dealer)
+    @deck.put_card(user)
+    @deck.put_card(dealer)
   end
 
   def show_interface
-    tiler
+    @text_interface.tiler
     @table.draw(round, active_player)
     @dealer.draw(false)
     @user.draw(true)
@@ -98,9 +97,9 @@ class Gameplay
 
   def show_player_dialog
     if @user_move
-      player_choice = offer_user_choice(@user.hand.length == 3)
+      player_choice = @text_interface.offer_user_choice(@user.hand.length == 3)
     else
-      offer_dealer_choice
+      @text_interface.offer_dealer_choice
       player_choice = make_dealer_choice
       puts player_choice
     end
@@ -108,7 +107,7 @@ class Gameplay
   end
 
   def make_dealer_choice
-    if @dealer.count_points < 17
+    if @dealer.hand.points < 17
       if @dealer.hand.length < 3
         2
       else
@@ -126,12 +125,12 @@ class Gameplay
       when 1
         show_interface
       when 2
-        @deck.take_card(user)
+        @deck.put_card(user)
         show_interface
       end
     else
       @user_move = !@user_move # strictly inside the condition
-      @deck.take_card(dealer) if player_choice == 2
+      @deck.put_card(dealer) if player_choice == 2
       show_interface
     end
     return if @stop_game
@@ -144,23 +143,21 @@ class Gameplay
   def check_round
     bet = @table.bank
     @table.give(bet)
-    user_points = @user.count_points
-    dealer_points = @dealer.count_points
-    if user_points > 21
-      if dealer_points < 22
+    if @user.hand.points > 21
+      if @dealer.hand.points < 22
         @dealer.take(bet)
       else
         tie = (bet / 2).round
         @dealer.take(tie)
         @user.take(tie)
       end
-    elsif user_points < dealer_points
-      if dealer_points < 22
+    elsif @user.hand.points < @dealer.hand.points
+      if @dealer.hand.points < 22
         @dealer.take(bet)
       else
         @user.take(bet)
       end
-    elsif user_points == dealer_points
+    elsif @user.hand.points == @dealer.hand.points
       tie = (bet / 2).round
       @dealer.take(tie)
       @user.take(tie)
@@ -170,11 +167,11 @@ class Gameplay
   end
 
   def show_user_dialog
-    tiler
+    @text_interface.tiler
     @table.draw(round, '')
     @dealer.draw(true)
     @user.draw(true)
-    case offer_next_round_or_finish_game
+    case @text_interface.offer_next_round_or_finish_game
     when 1
       @next_round = true
     else
@@ -188,10 +185,10 @@ class Gameplay
   end
 
   def move_cards_to_table(player)
-    card = player.give_card
+    card = player.hand.give_card
     until card.nil?
-      @table.take_card(card)
-      card = player.give_card
+      @table.hand.take_card(card)
+      card = player.hand.give_card
     end
   end
 end

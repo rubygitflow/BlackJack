@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TextInterface
+class TextInterface
   def new_username
     print 'Please enter your name: '
     gets.chomp.capitalize

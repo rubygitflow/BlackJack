@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 require_relative 'player'
-require_relative 'text_interface'
 
 class Table < Player
-  include TextInterface
 
   def initialize(name, bank)
     super(name, bank)
@@ -19,11 +17,11 @@ class Table < Player
   end
 
   def draw(round, active_player)
-    draw_round(round)
+    @text_interface.draw_round(round)
     print ' ' * 3
-    draw_bet(@bank)
+    @text_interface.draw_bet(@bank)
     print ' ' * 3
-    draw_player(active_player)
+    @text_interface.draw_player(active_player)
     print "\n"
   end
 end
