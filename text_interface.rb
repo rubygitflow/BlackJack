@@ -39,6 +39,10 @@ module TextInterface
     print "Bank: %3s" % amount
   end
 
+  def draw_player(active_player)
+    print "Player: #{active_player}"
+  end
+
   def draw_points(points)
     print "Points: #{points}"
   end
@@ -59,18 +63,29 @@ module TextInterface
     offer_next_round_or_finish_game
   end
 
-  def offer_user_choice
-    print "1 - Pass;"
-    print "   "
-    print "2 - Add card;"
-    print "   "
-    print "3 - Open the hand"
-    print "\n"
-    input = gets.chomp.to_i
-    if [1, 2, 3].include?(input)
-      return input
+  def offer_user_choice(skip_card)
+    if skip_card
+      print "1 - Pass;"
+      print "   "
+      print "3 - Open the hand"
+      print "\n"
+      input = gets.chomp.to_i
+      if [1, 3].include?(input)
+        return input
+      end
+    else
+      print "1 - Pass;"
+      print "   "
+      print "2 - Add card;"
+      print "   "
+      print "3 - Open the hand"
+      print "\n"
+      input = gets.chomp.to_i
+      if [1, 2, 3].include?(input)
+        return input
+      end
     end
-    offer_user_choice
+    offer_user_choice(skip_card)
   end
 
   def offer_dealer_choice
@@ -78,11 +93,6 @@ module TextInterface
     print "   "
     print "2 - Add card"
     print "\n"
-    input = gets.chomp.to_i
-    if [1, 2].include?(input)
-      return input
-    end
-    offer_dealer_choice
   end
 
 end

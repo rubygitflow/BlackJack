@@ -18,10 +18,12 @@ class Table < Player
   	@hand
   end
 
-  def draw(round)
+  def draw(round, active_player)
   	draw_round(round)
-  	print " "
+  	print "   "
   	draw_bet(@bank)
+  	print "   "
+  	draw_player(active_player)
   	print "\n"
   end
 end

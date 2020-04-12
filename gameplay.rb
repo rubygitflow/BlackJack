@@ -9,7 +9,8 @@ require_relative 'table'
 class Gameplay
   include TextInterface
 
-  attr_reader :user, :dealer, :table, :deck, :stop_error, :round, :user_move, :stop_game
+  attr_reader :user, :dealer, :table, :deck, :stop_error, :round, :user_move
+  attr_reader :stop_game, :next_round
   
   def initialize   
     @dealer = Dealer.new('Dealer', 100)
@@ -32,6 +33,7 @@ class Gameplay
 
     @deck = Deck.new()
     @stop_game = false
+    @next_round = false
   end
 
   def run_game
@@ -57,10 +59,10 @@ class Gameplay
   def run_round
     return false unless place_bets
     @round += 1
+    @next_round = false
     @user_move = true
     hand_out_first 
     show_interface
-    @user_move = !@user_move
     true
   end
 
@@ -82,34 +84,60 @@ class Gameplay
 
   def show_interface
     tiler
-    @table.draw(round)
+    @table.draw(round, active_player)
     @dealer.draw(false)
     @user.draw(true)
     show_player_dialog
   end
 
+  def active_player
+    @user_move ? @user.name : @dealer.name
+  end
+
   def show_player_dialog
     if @user_move
-      player_choice = offer_user_choice
+      player_choice = offer_user_choice(@user.hand.length == 3)
     else
-      player_choice = offer_dealer_choice
+      offer_dealer_choice
+      player_choice = make_dealer_choice 
+      puts player_choice
     end
     check_player_choice(player_choice)
   end
 
-  def check_player_choice(player_choice)
-    if @user_move
-      case player_choice
-      when 1
-      when 2
+  def make_dealer_choice
+    dealer_count_points = @dealer.count_points
+    if @dealer.count_points < 17 
+      if @dealer.hand.length < 3
+        2
       else
+        1
       end
     else
+      1
+    end
+  end
+
+  def check_player_choice(player_choice)
+    if @user_move
+      @user_move = !@user_move
       case player_choice
       when 1
-      else
+        show_interface
+      when 2
+        @deck.take_card(user)
+        show_interface
       end
+    else
+      @user_move = !@user_move
+      if player_choice == 2
+        @deck.take_card(dealer)
+      end
+      show_interface
     end
+    return if @stop_game
+    return if @next_round
+
     check_round
     show_user_dialog
   end
@@ -119,10 +147,22 @@ class Gameplay
     @table.give(bet)
     user_points = @user.count_points
     dealer_points = @dealer.count_points
-    if user_points > 21 || user_points < dealer_points
-      @dealer.take(bet)
+    if user_points > 21 
+      if dealer_points < 22
+        @dealer.take(bet)
+      else
+        tie = (bet / 2).round
+        @dealer.take(tie)
+        @user.take(tie)
+      end
+    elsif user_points < dealer_points
+      if dealer_points < 22
+        @dealer.take(bet)
+      else
+        @user.take(bet)
+      end
     elsif user_points == dealer_points
-      tie = bet div 2
+      tie = (bet / 2).round
       @dealer.take(tie)
       @user.take(tie)
     else
@@ -132,12 +172,12 @@ class Gameplay
 
   def show_user_dialog
     tiler
-    @table.draw(round)
+    @table.draw(round, '')
     @dealer.draw(true)
     @user.draw(true)
-    user_choice = offer_next_round_or_finish_game
-    case user_choice
+    case offer_next_round_or_finish_game
     when 1
+      @next_round = true
     else
       @stop_game = true
     end
