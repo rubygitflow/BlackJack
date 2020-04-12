@@ -4,7 +4,7 @@ module TextInterface
     
   def new_username
     print 'Please enter your name: '
-    gets.chomp
+    gets.chomp.capitalize
   end
       
   def username_rule
@@ -36,7 +36,7 @@ module TextInterface
   end
 
   def draw_bank(amount)
-    print "Bank: #{amount}"
+    print "Bank: %3s" % amount
   end
 
   def draw_points(points)
@@ -46,4 +46,43 @@ module TextInterface
   def tiler
     puts "_" * 43
   end
+
+  def offer_next_round_or_finish_game
+    print "1 - next round;"
+    print "   "
+    print "2 - finish game"
+    print "\n"
+    input = gets.chomp.to_i
+    if [1, 2].include?(input)
+      return input
+    end
+    offer_next_round_or_finish_game
+  end
+
+  def offer_user_choice
+    print "1 - Pass;"
+    print "   "
+    print "2 - Add card;"
+    print "   "
+    print "3 - Open the hand"
+    print "\n"
+    input = gets.chomp.to_i
+    if [1, 2, 3].include?(input)
+      return input
+    end
+    offer_user_choice
+  end
+
+  def offer_dealer_choice
+    print "1 - Pass;"
+    print "   "
+    print "2 - Add card"
+    print "\n"
+    input = gets.chomp.to_i
+    if [1, 2].include?(input)
+      return input
+    end
+    offer_dealer_choice
+  end
+
 end

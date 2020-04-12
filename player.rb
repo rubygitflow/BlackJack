@@ -39,12 +39,16 @@ class Player
     @bank >= amount
   end
 
-  def take_card(card, is_ace)
+  def take_card(card, is_ace = false)
     if is_ace
       @hand << card
     else
       @hand.insert(0, card)
     end
+  end
+
+  def give_card
+    @hand.shift
   end
 
   def draw(as_face)
@@ -64,6 +68,12 @@ class Player
     end
   end
 
+  def count_points
+    @points = 0
+    @hand.each{ |card| @points += card.value(@points) }
+    @points
+  end
+
   private
 
   def draw_hand_face
@@ -76,11 +86,5 @@ class Player
     output = ''
     @hand.each{ |card| output += ' | ' + card.back }
     output += ' |'
-  end
-
-  def count_points
-    @points = 0
-    @hand.each{ |card| @points += card.value(@points) }
-    @points
   end
 end
