@@ -4,10 +4,9 @@ require_relative 'card'
 require_relative 'player'
 
 class Deck
-
   attr_reader :current_deck
-  CARD_RANK = %w(2 3 4 5 6 7 8 9 10 J Q K A).freeze
-  CARD_SUIT = %w(♢ ♣ ♡ ♠).freeze
+  CARD_RANK = %w[2 3 4 5 6 7 8 9 10 J Q K A].freeze
+  CARD_SUIT = %w[♢ ♣ ♡ ♠].freeze
 
   def initialize
     @current_deck = generate_deck
@@ -30,7 +29,8 @@ class Deck
   end
 
   def take_card(player)
-    return false if current_deck.length == 0
+    return false if current_deck.empty?
+
     card = current_deck.pop
     player.take_card(card, card.ace?)
     true

@@ -6,11 +6,11 @@ class Card
   def initialize(rank, suit)
     @rank = rank
     to_string = rank + suit
-    @fase = "%3s" % to_string
+    @fase = '%3s' % to_string
   end
 
   def back
-    "***"
+    '***'
   end
 
   def value(points = 0)

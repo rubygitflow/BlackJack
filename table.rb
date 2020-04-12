@@ -11,19 +11,19 @@ class Table < Player
   end
 
   def bet
-  	@bank
+    @bank
   end
 
   def shield
-  	@hand
+    @hand
   end
 
   def draw(round, active_player)
-  	draw_round(round)
-  	print "   "
-  	draw_bet(@bank)
-  	print "   "
-  	draw_player(active_player)
-  	print "\n"
+    draw_round(round)
+    print ' ' * 3
+    draw_bet(@bank)
+    print ' ' * 3
+    draw_player(active_player)
+    print "\n"
   end
 end

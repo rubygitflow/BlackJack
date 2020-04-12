@@ -52,25 +52,21 @@ class Player
   end
 
   def draw(as_face)
+    print format('%10s   ', @name)
+    draw_bank(@bank)
+    print ' ' * 3
     if as_face
-      print "%10s   " % @name
-      draw_bank(@bank)
-      print "  "
       print " #{draw_hand_face}   "
       draw_points(count_points)
-      print "\n"
     else
-      print "%10s   " % @name
-      draw_bank(@bank)
-      print "  "
-      print " #{draw_hand_back} "
-      print "\n"
+      print " #{draw_hand_back}"
     end
+    print "\n"
   end
 
   def count_points
     @points = 0
-    @hand.each{ |card| @points += card.value(@points) }
+    @hand.each { |card| @points += card.value(@points) }
     @points
   end
 
@@ -78,13 +74,13 @@ class Player
 
   def draw_hand_face
     output = ''
-    @hand.each{ |card| output += ' | ' + card.fase }
+    @hand.each { |card| output += ' | ' + card.fase }
     output += ' |'
   end
 
   def draw_hand_back
     output = ''
-    @hand.each{ |card| output += ' | ' + card.back }
+    @hand.each { |card| output += ' | ' + card.back }
     output += ' |'
   end
 end

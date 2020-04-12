@@ -25,9 +25,12 @@ module Validation
     private
 
     def validate!
-      validations = self.class.validations.nil? ? 
-                    self.class.superclass.validations : 
-                    self.class.validations
+      validations =
+        if self.class.validations.nil?
+          self.class.superclass.validations
+        else
+          self.class.validations
+        end
       validations.each do |validation|
         validation[:attr] = instance_variable_get("@#{validation[:name]}")
         send "validate_#{validation[:type]}", validation
@@ -41,18 +44,18 @@ module Validation
     def validate_name_format(options)
       raise 'Wrong format attribute!' if options[:attr] !~ options[:args].first
       raise 'Wrong attribute length!' if options[:args][1] &&
-        options[:attr].size < options[:args][1]
+                                         options[:attr].size < options[:args][1]
     end
 
     def validate_kind(options)
-      unless options[:attr].is_a?(options[:args].first)
-        raise 'Wrong class of attribute!'
-      end
+      return if options[:attr].is_a?(options[:args].first)
+
+      raise 'Wrong class of attribute!'
     end
 
     def validate_unique(options)
-      raise 'Attribute already exists!' if options[:args].first
-                                          .include?(options[:attr])
+      raise 'Attribute already exists!' if options[:args]
+                                           .first.include?(options[:attr])
     end
   end
 end

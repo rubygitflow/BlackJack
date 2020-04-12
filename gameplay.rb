@@ -11,8 +11,8 @@ class Gameplay
 
   attr_reader :user, :dealer, :table, :deck, :stop_error, :round, :user_move
   attr_reader :stop_game, :next_round
-  
-  def initialize   
+
+  def initialize
     @dealer = Dealer.new('Dealer', 100)
     @table = Table.new('Table', 0)
     begin
@@ -24,14 +24,14 @@ class Gameplay
       if (attempt += 1) < 3
         puts e
         username_rule
-        retry 
+        retry
       else
         @stop_error = true
         return
       end
     end
 
-    @deck = Deck.new()
+    @deck = Deck.new
     @stop_game = false
     @next_round = false
   end
@@ -47,6 +47,7 @@ class Gameplay
         break
       end
       break if @stop_game
+
       finish_round
       continue = @deck.enough?(6)
       deck_is_over unless continue
@@ -58,22 +59,23 @@ class Gameplay
 
   def run_round
     return false unless place_bets
+
     @round += 1
     @next_round = false
     @user_move = true
-    hand_out_first 
+    hand_out_first
     show_interface
     true
   end
 
   def place_bets
     return false unless @dealer.bank?(10) || @user.bank?(10)
+
     @dealer.give(10)
     @user.give(10)
     @table.take(20)
     true
   end
-
 
   def hand_out_first
     @deck.take_card(user)
@@ -99,15 +101,14 @@ class Gameplay
       player_choice = offer_user_choice(@user.hand.length == 3)
     else
       offer_dealer_choice
-      player_choice = make_dealer_choice 
+      player_choice = make_dealer_choice
       puts player_choice
     end
     check_player_choice(player_choice)
   end
 
   def make_dealer_choice
-    dealer_count_points = @dealer.count_points
-    if @dealer.count_points < 17 
+    if @dealer.count_points < 17
       if @dealer.hand.length < 3
         2
       else
@@ -120,7 +121,7 @@ class Gameplay
 
   def check_player_choice(player_choice)
     if @user_move
-      @user_move = !@user_move
+      @user_move = !@user_move # strictly inside the condition
       case player_choice
       when 1
         show_interface
@@ -129,10 +130,8 @@ class Gameplay
         show_interface
       end
     else
-      @user_move = !@user_move
-      if player_choice == 2
-        @deck.take_card(dealer)
-      end
+      @user_move = !@user_move # strictly inside the condition
+      @deck.take_card(dealer) if player_choice == 2
       show_interface
     end
     return if @stop_game
@@ -147,7 +146,7 @@ class Gameplay
     @table.give(bet)
     user_points = @user.count_points
     dealer_points = @dealer.count_points
-    if user_points > 21 
+    if user_points > 21
       if dealer_points < 22
         @dealer.take(bet)
       else
@@ -190,7 +189,7 @@ class Gameplay
 
   def move_cards_to_table(player)
     card = player.give_card
-    while !card.nil?
+    until card.nil?
       @table.take_card(card)
       card = player.give_card
     end
